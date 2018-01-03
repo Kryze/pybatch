@@ -10,9 +10,9 @@ import time
 import posix_ipc as pos
 import re
 
-def run():    
+def run():
     # pgcycl envoie un message à gobatch. La priorité change en fonction du paramètre.
-    
+
     # Création de la file de messages
     try:
         filmess = pos.MessageQueue("/queue",pos.O_CREAT)
@@ -20,7 +20,7 @@ def run():
     except pos.ExistentialError:
         pos.unlink_message_queue("/queue") # détruit la file
         filmess = pos.MessageQueue("/queue",pos.O_CREAT) # puis redemande la création
-    
+
     # On récupère les arguments
     args=sys.argv
 
@@ -42,30 +42,37 @@ def run():
         elif param=="a":
             # Ajout d'une ligne au fichier fbatch
             # On récupère les arguments correspondant au temps
-            cron=[]
+            #cron=[]
+            cron="";
             try:
-                for arg in args[2:-3]: 
+                print(args[2:-1])
+                # ICI J'AI MIS -1 pour avoir les 5 paramètres POUR AVOIR LE NOM DE LA COMMANDE
+                for arg in args[2:-1]:
                     if re.match("^[0-9]{1,2}$",arg):
-                        cron.append(int(arg)) # Sous forme numérique pour tester la validité (à voir)
+                        cron+=arg+" "
+                        #cron.append(int(arg)) # Sous forme numérique pour tester la validité (à voir)
                     elif re.match("^\*$",arg):
-                        cron.append("*")
+                        cron+="* "
+                        #cron.append("*")
                     else:
                         print "Paramètre {} invalide.".format(arg)
                 # On récupère le nom de la commande ainsi que les fichiers de sortie
-                cmd=args[-3]
+                # ICI J'AI MIS 7 POUR AVOIR LE NOM DE LA COMMANDE
+                cmd=args[7]
+                # PAS COMPRIS CA
                 stdout=args[-2]
                 stderr=args[-1]
 
                 # On envoie le message à gobatch : ce qu'il devra écrire dans fbatch
                 #TODO: Format du message avec les infos ci-dessus
-                message="placeholder A"
+                message=cron+cmd
                 filmess.send(message,None,3)
                 print "pgcycl : message {} envoyé".format(message)
             except IndexError:
                 print "Nombre de paramètres invalides."
     else:
         print "Paramètre invalide. Utilisez -l, -d ou -a"
-    
+
 
 if __name__ == "__main__":
     #Initialisation du sémaphore

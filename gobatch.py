@@ -7,9 +7,12 @@
 import os
 import sys
 import time
+import threading
+import datetime
 import posix_ipc as pos
 
-#TODO Mettre le repertoire avec le truc comme HOME a la place de benjamin
+#Tableau qui contiendra tous les threads
+my_threads = []
 def lectureFichier():
     #On ouvre le fichier fbatch.txt en lecture (r)
     with open(os.path.expanduser("~/fbatch.txt"),"r") as f:
@@ -26,6 +29,48 @@ def ecritureFichier(msg):
     with open(os.path.expanduser("~/fbatch.txt"),"a") as f:
         print("gobatch: Ecriture de la commande")
         f.write(msg+" \r\n")
+    #On crée le thread qui utilisera une fonction auquel on passera les arguments
+    dates=msg.split()
+    thread = threading.Thread(target = threadedCron, args = (dates[0],dates[1],dates[2],dates[3],dates[4],"wow"))
+    #On démarre le thread
+    thread.start()
+    my_threads.append(thread)
+
+def threadedCron(minute,heure,jourmois,mois,joursemaine,commande):
+    #TODO GERER LES JOUR DE LA SEMAINE SI POSSIBLE
+    #On démarre le thread
+    print("Démarrage du Thread pour la commande : "+commande)
+    print("_________________________")
+    #On affiche les différents temps pour vérifier
+    print("Minute : "+minute)
+    print("Heure : "+heure)
+    print("Jour du mois : "+jourmois)
+    print("Mois : "+mois)
+    print("Jour semaine : "+joursemaine)
+    now=datetime.datetime.now()
+    #On modifie les étoiles en conséquence (A VERIFIER !!)
+    if(minute=="*"):
+        minute=00
+    if(heure=="*"):
+        heure=00
+    if(jourmois=="*"):
+        if(mois!="*"):
+            jourmois=01
+        else:
+            jourmois=now.day
+    if(mois=="*"):
+        mois=now.month
+    #On cree la date avec les différents paramètres
+    sched=datetime.datetime(now.year,int(mois),int(jourmois),int(heure),int(minute),00)
+    print(now)
+    print("timenow")
+    print(sched)
+    print("timesched")
+    #On récupère le total de secondes entre les deux dates
+    secsched=(sched-now).total_seconds()
+    print(secsched)
+    print("_________________________")
+    print("Le Thread pour la commande : "+commande+" est termine")
 
 def run():
     while True:
@@ -51,7 +96,12 @@ def run():
         elif priorite == 3:
             # Action : écriture dans le fichier fbatch
             ecritureFichier(message)
-        
+            # On affiche les threads pour le moment, par la suite il faudra utiliser
+            # for t in my_threads:
+            # if not t.isAlive()
+            # A ce moment là il faudra le relancer sinon rien
+            print(my_threads)
+
 if __name__ == "__main__":
     #Initialisation du sémaphore
     try:
