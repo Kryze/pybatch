@@ -12,6 +12,7 @@ import re
 
 def run():
     # pgcycl envoie un message à gobatch. La priorité change en fonction du paramètre.
+    # La fonction est appelée de la sorte : ./pgcycl [0-59] [0-23] [1-31] [1-12] [0-6] cmd stdout stderr
 
     # Création de la file de messages
     try:
@@ -31,41 +32,50 @@ def run():
         # Actions à effectuer en fonction du paramètre
         if param=="l":
             # Affichage du fichier fbatch
-            message="placeholder L"
+            message="fbatch list"
             filmess.send(message,None,1)
             print "pgcycl : message {} envoyé".format(message)
         elif param=="d":
             # Suppression d'une ligne
-            message="placeholder D"
+            message="fbatch del"
             filmess.send(message,None,2)
             print "pgcycl : message {} envoyé".format(message)
         elif param=="a":
             # Ajout d'une ligne au fichier fbatch
             # On récupère les arguments correspondant au temps
-            #cron=[]
-            cron="";
+            cron=[]
+            #cron="";
             try:
-                print(args[2:-1])
-                # ICI J'AI MIS -1 pour avoir les 5 paramètres POUR AVOIR LE NOM DE LA COMMANDE
-                for arg in args[2:-1]:
+                print(args[2:-3])
+                # Boucle sur les arguments cron
+                for arg in args[2:-3]:
                     if re.match("^[0-9]{1,2}$",arg):
-                        cron+=arg+" "
-                        #cron.append(int(arg)) # Sous forme numérique pour tester la validité (à voir)
+                        #cron+=arg+" "
+                        cron.append(arg)
                     elif re.match("^\*$",arg):
-                        cron+="* "
-                        #cron.append("*")
+                        #cron+="* "
+                        cron.append("*")
                     else:
                         print "Paramètre {} invalide.".format(arg)
+                # Formattage de cron :
+                if len(cron)<5:
+                    for i in range(5-len(cron)):
+                        cron.append('*')
+                elif len(cron)>5:
+                    cron=cron[:5]
+                
+                ###TODO: à voir si on a besoin de ça ###
                 # On récupère le nom de la commande ainsi que les fichiers de sortie
-                # ICI J'AI MIS 7 POUR AVOIR LE NOM DE LA COMMANDE
-                cmd=args[7]
-                # PAS COMPRIS CA
-                stdout=args[-2]
-                stderr=args[-1]
+                #cmd=args[-3]
+                # On récupère le nom des fichiers de sortie standard et erreur
+                #stdout=args[-2]
+                #stderr=args[-1]
+                ########################################
 
                 # On envoie le message à gobatch : ce qu'il devra écrire dans fbatch
                 #TODO: Format du message avec les infos ci-dessus
-                message=cron+cmd
+                # Le message correspond à cron + commande + fichiers de sortie
+                message=' '.join(cron+args[-3:])
                 filmess.send(message,None,3)
                 print "pgcycl : message {} envoyé".format(message)
             except IndexError:

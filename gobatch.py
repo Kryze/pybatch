@@ -8,7 +8,7 @@ import os
 import sys
 import time
 import threading
-import datetime
+from datetime import datetime
 import posix_ipc as pos
 
 #Tableau qui contiendra tous les threads
@@ -21,7 +21,7 @@ def lectureFichier():
         #Pour chaque ligne
         for line in f:
             #On affiche la ligne
-            # A faire Plus tard, afficher le PID et vérifier qu'il tourne encore, sinon le relancer pour chaque ligne
+            #TODO: afficher le PID et vérifier qu'il tourne encore, sinon le relancer pour chaque ligne
             print(line)
 
 def ecritureFichier(msg):
@@ -30,13 +30,12 @@ def ecritureFichier(msg):
         print("gobatch: Ecriture de la commande")
         f.write(msg+" \r\n")
     #On crée le thread qui utilisera une fonction auquel on passera les arguments
-    dates=msg.split()
-    thread = threading.Thread(target = threadedCron, args = (dates[0],dates[1],dates[2],dates[3],dates[4],"wow"))
+    thread = threading.Thread(target = threadedCron, args = msg.split())
     #On démarre le thread
     thread.start()
     my_threads.append(thread)
 
-def threadedCron(minute,heure,jourmois,mois,joursemaine,commande):
+def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
     #TODO GERER LES JOUR DE LA SEMAINE SI POSSIBLE
     #On démarre le thread
     print("Démarrage du Thread pour la commande : "+commande)
@@ -47,21 +46,16 @@ def threadedCron(minute,heure,jourmois,mois,joursemaine,commande):
     print("Jour du mois : "+jourmois)
     print("Mois : "+mois)
     print("Jour semaine : "+joursemaine)
-    now=datetime.datetime.now()
-    #On modifie les étoiles en conséquence (A VERIFIER !!)
-    if(minute=="*"):
-        minute=00
-    if(heure=="*"):
-        heure=00
-    if(jourmois=="*"):
-        if(mois!="*"):
-            jourmois=01
-        else:
-            jourmois=now.day
-    if(mois=="*"):
-        mois=now.month
+    now=datetime.now()
     #On cree la date avec les différents paramètres
-    sched=datetime.datetime(now.year,int(mois),int(jourmois),int(heure),int(minute),00)
+    # si le paramètre est '*', alors on récupère le temps actuel correspondant
+    #TODO: gérer les bonnes définitions en testant (exemple : * 1 * ..)
+    sched=datetime(now.year,\
+    int(mois) if mois.isdigit() else now.month,\
+    int(jourmois) if jourmois.isdigit() else now.day,\
+    int(heure) if heure.isdigit() else now.hour,\
+    int(minute) if minute.isdigit() else now.minute,\
+    0)
     print(now)
     print("timenow")
     print(sched)
