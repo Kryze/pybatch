@@ -73,13 +73,16 @@ def run():
                 stdout=args[-2]
                 stderr=args[-1]
                 # Cela nous permet également de vérifier que le nombre de paramètres est correct
-
-                # On envoie le message à gobatch : ce qu'il devra écrire dans fbatch
-                #TODO: Format du message avec les infos ci-dessus => OK?
-                # Le message correspond à cron + commande + fichiers de sortie
-                message=' '.join(cron+args[-3:]) # on utilise la liste des arguments au lieu de cmd, stdout et stderr car aucune manipulation n'est effectuée
-                filmess.send(message,None,3)
-                print "pgcycl : message {} envoyé".format(message)
+                
+                if re.match("^[0-9\*]{1,2}$",cmd) or re.match("^[0-9\*]{1,2}$",stdout) or re.match("^[0-9]{1,2}$",stderr):
+                    # On vérifie que l'utilisateur a bien entré les paramètres correspondants, en utilisant une regex
+                    print "Paramètre(s) invalide(s). Veuillez renseigner une commande, une sortie standard et une sortie d'erreurs."
+                else:
+                    # On envoie le message à gobatch : ce qu'il devra écrire dans fbatch
+                    # Le message correspond à cron + commande + fichiers de sortie
+                    message=' '.join(cron+args[-3:])
+                    filmess.send(message,None,3)
+                    print "pgcycl : message {} envoyé".format(message)
             except IndexError:
                 print "Nombre de paramètres invalides."
     else:

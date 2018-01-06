@@ -10,11 +10,10 @@ import time
 import threading
 from datetime import datetime,timedelta
 import posix_ipc as pos
+from subprocess import call
 
 # Tableau qui contiendra tous les threads
 my_threads = []
-
-
 
 # Fonction permettant de lire le fichier fbatch
 def lectureFichier():
@@ -42,7 +41,8 @@ def ecritureFichier(msg):
     # On créé le thread qui utilisera une fonction à laquelle on passera les arguments
     thread = threading.Thread(target = threadedCron, args = msg.split())
 
-    # On démarre le thread et l'ajoute au tableau
+    # On démarre le thread en tant que démon et l'ajoute au tableau
+    thread.daemon = True
     thread.start()
     my_threads.append(thread)
 
@@ -80,8 +80,9 @@ def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
     #TODO: lancer la commande dans secsched secondes
 
 def execFonction(commande):
-    #TODO Executer la vrai fonction pas un print
-    print("I am running again for"+commande)
+    # Exécute la commande précisée
+    print("I am running again for "+commande)
+    call(commande.split())
 
 # Fonction qui définie la prochaine date d'éxecution
 def next_date(mois,jourmois,joursemaine,heure,minute):
