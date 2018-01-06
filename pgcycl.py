@@ -36,10 +36,17 @@ def run():
             filmess.send(message,None,1)
             print "pgcycl : message {} envoyé".format(message)
         elif param=="d":
-            # Suppression d'une ligne
-            message="fbatch del"
-            filmess.send(message,None,2)
-            print "pgcycl : message {} envoyé".format(message)
+            # Suppression d'une ligne, on verifie qu'il y a bien 3 arguments et que c'est un nombre
+            if(len(args)==3 and args[-1].isdigit()):
+                message=args[-1]
+                filmess.send(message,None,2)
+                print "pgcycl : message {} envoyé".format(message)
+            else:
+                print "_________________________"
+                print "Erreur, veuillez indiquer la ligne que vous souhaitez supprimer"
+                print "Le format est : -d x"
+                print "Ou x est la ligne à supprimer"
+                print "_________________________"
         elif param=="a":
             # Ajout d'une ligne au fichier fbatch
             # On récupère les arguments correspondant au temps
@@ -59,7 +66,7 @@ def run():
                         cron.append('*')
                 elif len(cron)>5:
                     cron=cron[:5]
-                
+
                 # On récupère le nom de la commande ainsi que les fichiers de sortie
                 cmd=args[-3]
                 # On récupère le nom des fichiers de sortie standard et erreur
