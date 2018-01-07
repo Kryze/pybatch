@@ -7,7 +7,7 @@
 import os
 import sys
 import time
-import threading
+from multiprocessing import Process
 from datetime import datetime,timedelta
 import posix_ipc as pos
 
@@ -41,7 +41,7 @@ def creationThread():
         msg = f[-1]
 
         # On créé le thread qui utilisera une fonction à laquelle on passera les arguments
-        thread = threading.Thread(target = threadedCron, args = msg.split())
+        thread = Process(target = threadedCron, args = msg.split())
 
         # On démarre le thread en tant que démon et l'ajoute au tableau
         thread.daemon = True
@@ -148,7 +148,10 @@ def supprimerThread(message):
     # Supprime le thread correspondant à la ligne supprimée
     print(my_threads)
     #LA METHODE POUR STOPPER NE MARCHE PAS J'AI TESTER
-    my_threads[int(message)-1]._Thread__stop()
+    print(my_threads[int(message)-1].is_alive())
+    my_threads[int(message)-1].terminate()
+    my_threads[int(message)-1].join()
+    print(my_threads[int(message)-1].is_alive())
     #On supprime la référence du thread de la liste
     del my_threads[int(message)-1]
     print(my_threads)
