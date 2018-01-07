@@ -10,7 +10,6 @@ import time
 import threading
 from datetime import datetime,timedelta
 import posix_ipc as pos
-from subprocess import call
 
 # Tableau qui contiendra tous les threads
 my_threads = []
@@ -31,20 +30,25 @@ def lectureFichier():
         print "Le fichier fbatch est vide ou n'existe pas."
 
 # Fonction permettant d'écrire dans le fichier fbatch et de lancer le thread correspondant
-def ecritureFichier(msg):
-    # On ouvre le fichier fbatch.txt en écriture append (a)
-    #TODO: formatter le message : a-t-on besoin du cron ? (pour l'instant tout est écrit)
-    with open(os.path.expanduser("~/fbatch.txt"),"a") as f:
-        print "gobatch: Ecriture de la commande"
-        f.write(msg+" \r\n")
+def creationThread():
+    # On ouvre le fichier fbatch et récupère la dernière ligne
+    try:
+        with open(os.path.expanduser("~/fbatch.txt"),"r") as f:
+            # On récupère toutes les lignes du fichier
+            f=f.read().splitlines()            
 
-    # On créé le thread qui utilisera une fonction à laquelle on passera les arguments
-    thread = threading.Thread(target = threadedCron, args = msg.split())
+        # On s'interesse uniquement à la dernière ligne du fichier
+        msg = f[-1]
 
-    # On démarre le thread en tant que démon et l'ajoute au tableau
-    thread.daemon = True
-    thread.start()
-    my_threads.append(thread)
+        # On créé le thread qui utilisera une fonction à laquelle on passera les arguments
+        thread = threading.Thread(target = threadedCron, args = msg.split())
+
+        # On démarre le thread en tant que démon et l'ajoute au tableau
+        thread.daemon = True
+        thread.start()
+        my_threads.append(thread)
+    except IOError:
+        print "Le fichier fbatch est vide ou n'existe pas."
 
 #TODO:
 def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
@@ -74,15 +78,16 @@ def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
         #On endort le thread le temps défini avant la prochaine execution de la commande
         time.sleep(secsched)
         #On execute la commande indiquer par l'utilisateur
-        execFonction(commande)
+        execFonction(commande,stdout,stderr)
     print("_________________________")
     print("Le Thread pour la commande : "+commande+" est termine")
     #TODO: lancer la commande dans secsched secondes
 
-def execFonction(commande):
+def execFonction(commande,stdout,stderr):
     # Exécute la commande précisée
     print("I am running again for "+commande)
-    call(commande.split())
+    msg="{} 1>>{} 2>>{}".format(commande,stdout,stderr)
+    os.system(msg)
 
 # Fonction qui définie la prochaine date d'éxecution
 def next_date(mois,jourmois,joursemaine,heure,minute):
@@ -139,35 +144,14 @@ def next_date(mois,jourmois,joursemaine,heure,minute):
 
   return(next) # retourne la prochaine date d'éxecution
 
-def supprimerLigne(message):
-    try:
-        #On ouvre le fichier en lecture/ecriture
-        f = open(os.path.expanduser("~/fbatch.txt"),"r+")
-        #On récupere toutes les lignes
-        lines = f.readlines()
-        #On positionne le pointeur au début du fichier
-        f.seek(0)
-        #nb permet de vérifier quel ligne il ne faut pas réecrire
-        nb=0
-        print(message)
-        for i in lines:
-            nb+=1
-            #Si la ligne correspond a celle choisi par l'utilisateur alors on ne l'écrit pas
-            if nb != int(message):
-                f.write(i)
-        #On tronque ce qui reste
-        f.truncate()
-        #On ferme le fichier
-        f.close()
-        print(my_threads)
-        #LA METHODE POUR STOPPER NE MARCHE PAS J'AI TESTER
-        my_threads[int(message)-1]._Thread__stop()
-        #On supprime la référence du thread de la liste
-        del my_threads[int(message)-1]
-        print(my_threads)
-    except IOError:
-        print "Le fichier fbatch est vide ou n'existe pas."
-
+def supprimerThread(message):
+    # Supprime le thread correspondant à la ligne supprimée
+    print(my_threads)
+    #LA METHODE POUR STOPPER NE MARCHE PAS J'AI TESTER
+    my_threads[int(message)-1]._Thread__stop()
+    #On supprime la référence du thread de la liste
+    del my_threads[int(message)-1]
+    print(my_threads)
 
 def run():
     while True:
@@ -189,10 +173,10 @@ def run():
             lectureFichier()
         elif priorite == 2:
             # Action : suppression de la commande spécifiée
-            supprimerLigne(message)
+            supprimerThread(message)
         elif priorite == 3:
             # Action : écriture dans le fichier fbatch
-            ecritureFichier(message)
+            creationThread()
             #TODO: On affiche les threads pour le moment, par la suite il faudra utiliser
             # for t in my_threads:
             # if not t.isAlive()

@@ -10,6 +10,37 @@ import time
 import posix_ipc as pos
 import re
 
+# Fonction permettant d'écrire dans le fichier fbatch
+def ecritureFichier(msg):
+    # On ouvre le fichier fbatch.txt en écriture append (a)
+    #TODO: formatter le message : a-t-on besoin du cron ? (pour l'instant tout est écrit)
+    with open(os.path.expanduser("~/fbatch.txt"),"a") as f:
+        print "gobatch: Ecriture de la commande"
+        f.write(msg+" \r\n")
+
+def supprimerLigne(line):
+    try:
+        # On ouvre le fichier en lecture/ecriture
+        f = open(os.path.expanduser("~/fbatch.txt"),"r+")
+        # On récupere toutes les lignes
+        lines = f.readlines()
+        # On positionne le pointeur au début du fichier
+        f.seek(0)
+        # nb permet de vérifier quel ligne il ne faut pas réecrire
+        nb=0
+        print(line)
+        for i in lines:
+            nb+=1
+            # Si la ligne correspond a celle choisi par l'utilisateur alors on ne l'écrit pas
+            if nb != int(line):
+                f.write(i)
+        # On tronque ce qui reste
+        f.truncate()
+        # On ferme le fichier
+        f.close()
+    except IOError:
+        print "Le fichier fbatch est vide ou n'existe pas."
+
 def run():
     # pgcycl envoie un message à gobatch. La priorité change en fonction du paramètre.
     # La fonction est appelée de la sorte : ./pgcycl [0-59] [0-23] [1-31] [1-12] [0-6] cmd stdout stderr
@@ -38,6 +69,10 @@ def run():
         elif param=="d":
             # Suppression d'une ligne, on verifie qu'il y a bien 3 arguments et que c'est un nombre
             if(len(args)==3 and args[-1].isdigit()):
+                # On supprime la ligne correspondante du fichier fbatch
+                supprimerLigne(args[-1])
+                
+                # On envoi un message à gobatch pour le prévenir qu'on a modifié fbatch
                 message=args[-1]
                 filmess.send(message,None,2)
                 print "pgcycl : message {} envoyé".format(message)
@@ -78,9 +113,13 @@ def run():
                     # On vérifie que l'utilisateur a bien entré les paramètres correspondants, en utilisant une regex
                     print "Paramètre(s) invalide(s). Veuillez renseigner une commande, une sortie standard et une sortie d'erreurs."
                 else:
-                    # On envoie le message à gobatch : ce qu'il devra écrire dans fbatch
+                    # On écrit le message à la fin du fichier fbatch
                     # Le message correspond à cron + commande + fichiers de sortie
-                    message=' '.join(cron+args[-3:])
+                    msg=' '.join(cron+args[-3:])
+                    ecritureFichier(msg)
+                    
+                    # On envoie le message à gobatch pour le prévenir qu'on a modifié fbatch
+                    message="fbatch write"
                     filmess.send(message,None,3)
                     print "pgcycl : message {} envoyé".format(message)
             except IndexError:
