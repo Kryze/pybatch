@@ -39,7 +39,7 @@ def lectureFichier():
                 if tabCmd[4] == '*':
                     joursemaineTxt = '*'
                 else:
-                    joursemaineTxt = jourT[int(tabCmd[4])-1]
+                    joursemaineTxt = jourT[int(tabCmd[4])]
                 if tabCmd[3] == '*':
                     moisTxt = '*'
                 else:
