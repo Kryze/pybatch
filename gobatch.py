@@ -89,6 +89,9 @@ def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
 
         # On récupère la prochaine date d'éxécution avec la fonction correspondante
         sched=next_date(mois,jourmois,joursemaine,heure,minute)
+        if sched is None:
+            break
+
         print("timenow : {}".format(now))
         print("timesched : {}".format(sched))
 
@@ -118,46 +121,57 @@ def next_date(mois,jourmois,joursemaine,heure,minute):
   cont=True
 
   while(cont):
-    # Mois
-    if mois.isdigit() and int(mois)!=next.month:
-        if next.month>int(mois):
-            next=next.replace(year=next.year+1) # si on a dépassé le mois, on ajoute une année
-        next=next.replace(month=int(mois),day=1,hour=0,minute=0) # on se place au début du mois
-        continue
+    try:
+        
+        # Mois
+        if mois.isdigit() and int(mois)!=next.month:
+            if next.month>int(mois):
+                next=next.replace(year=next.year+1) # si on a dépassé le mois, on ajoute une année
+            next=next.replace(month=int(mois),day=1,hour=0,minute=0) # on se place au début du mois
+            continue
 
-    # Jour du mois
-    if jourmois.isdigit() and int(jourmois)!=next.day:
-      if next.day > int(jourmois): # voir pour le nbr de jours par mois
-       next=next.replace(month=next.month+1,day=1) # si on a dépassé le jour, on se place au mois suivant
-      else:
-        try:
-         next=next.replace(day=int(jourmois))
-        except ValueError:
-          next=next.replace(month=next.month+1,day=1) # si le mois actuel ne contient pas le bon nombre de jours (exemple on veut le jour 31 et on est en Février, on se place au mois suivant)
-      next=next.replace(hour=0,minute=0) # on se place au début du jour
-      continue
+        # Jour du mois
+        if jourmois.isdigit() and int(jourmois)!=next.day:
+          if next.day > int(jourmois): # voir pour le nbr de jours par mois
+           next=next.replace(month=next.month+1,day=1) # si on a dépassé le jour, on se place au mois suivant
+          else:
+            try:
+             next=next.replace(day=int(jourmois))
+            except ValueError:
+              next=next.replace(month=next.month+1,day=1) # si le mois actuel ne contient pas le bon nombre de jours (exemple on veut le jour 31 et on est en Février, on se place au mois suivant)
+          next=next.replace(hour=0,minute=0) # on se place au début du jour
+          continue
 
-    # Jour de la semaine
-    if joursemaine.isdigit() and int(joursemaine)!=next.weekday():
-      diff=int(joursemaine)-next.weekday() # on calcule la différence entre les jours de la semaine
-      if diff < 0:
-        diff+=7 # si on a dépassé le jour, on se place à la semaine suivante
-      next+=timedelta(days=diff)
-      next=next.replace(hour=0,minute=0) # on se place au début du jour
-      continue
+        # Jour de la semaine
+        if joursemaine.isdigit() and int(joursemaine)!=next.weekday():
+          diff=int(joursemaine)-next.weekday() # on calcule la différence entre les jours de la semaine
+          if diff < 0:
+            diff+=7 # si on a dépassé le jour, on se place à la semaine suivante
+          next+=timedelta(days=diff)
+          next=next.replace(hour=0,minute=0) # on se place au début du jour
+          continue
 
-    # Heure
-    if heure.isdigit() and int(heure)!=next.hour:
-      if next.hour > int(heure):
-        next+=timedelta(days=1) # si on a dépassé l'heure, on se place au jour suivant
-      next=next.replace(hour=int(heure),minute=0) # on se place au début de l'heure
-      continue
+        # Heure
+        if heure.isdigit() and int(heure)!=next.hour:
+          if next.hour > int(heure):
+            next+=timedelta(days=1) # si on a dépassé l'heure, on se place au jour suivant
+          next=next.replace(hour=int(heure),minute=0) # on se place au début de l'heure
+          continue
 
-    # Minute
-    if minute.isdigit() and int(minute)!=next.minute:
-      if next.minute > int(minute):
-        next+=timedelta(hours=1) # si on a dépassé la minute, on se place à l'heure suivante
-      next=next.replace(minute=int(minute))
+        # Minute
+        if minute.isdigit() and int(minute)!=next.minute:
+          if next.minute > int(minute):
+            next+=timedelta(hours=1) # si on a dépassé la minute, on se place à l'heure suivante
+          next=next.replace(minute=int(minute))
+
+    except ValueError:
+
+        print "VEUILLEZ SAISIR UNE DATE REALISABLE"
+        lines = file(os.path.expanduser('~/fbatch.txt'), 'r').readlines() 
+        del lines[-1] 
+        file(os.path.expanduser('~/fbatch.txt'), 'w').writelines(lines)
+        cont=False
+        return 
 
     cont=False # lorsque la date correspond, on sort de la boucle
 
