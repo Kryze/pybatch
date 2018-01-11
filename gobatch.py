@@ -10,12 +10,19 @@ import time
 from multiprocessing import Process
 from datetime import datetime,timedelta
 import posix_ipc as pos
+import shlex
 
 # Tableau qui contiendra tous les threads
 my_threads = []
 
+# Tableaux permettant de passer d'un nombre au string correspondant à son jour de semaine ou au mois
+jourT = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche']
+moisT = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre']
+
 # Fonction permettant de lire le fichier fbatch
 def lectureFichier():
+    #On initialise le nombre de lignes à 0
+    i=0
     # On ouvre le fichier fbatch.txt en lecture (r)
     try:
         with open(os.path.expanduser("~/fbatch.txt"),"r") as f:
@@ -23,9 +30,23 @@ def lectureFichier():
             f=f.read().splitlines()
             # Pour chaque ligne du fichier
             for line in f:
-                # On affiche la ligne
+                # On incrémente la variable pour chaque ligne
+                i+=1
                 #TODO: afficher le PID et vérifier qu'il tourne encore, sinon le relancer pour chaque ligne
-                print line
+                # On split la ligne en prenant en compte les quotes
+                tabCmd = shlex.split(line)
+                # Si jour de la semaine ou mois sont vides on ne regarde pas les tableaux
+                if tabCmd[4] == '*':
+                    joursemaineTxt = '*'
+                else:
+                    joursemaineTxt = jourT[int(tabCmd[4])-1]
+                if tabCmd[3] == '*':
+                    moisTxt = '*'
+                else:
+                    moisTxt = moisT[int(tabCmd[3])-1]
+
+                # On affiche la ligne ainsi que les informations de fbatch de façon lisible pour l'utilisateur
+                print "Ligne {} - Execution du programme {} chaque {} {} {} à {} H {}".format(i,tabCmd[5],joursemaineTxt,tabCmd[2],moisTxt,tabCmd[1],tabCmd[0])
     except IOError:
         print "Le fichier fbatch est vide ou n'existe pas."
 
@@ -41,7 +62,7 @@ def creationThread():
         msg = f[-1]
 
         # On créé le thread qui utilisera une fonction à laquelle on passera les arguments
-        thread = Process(target = threadedCron, args = msg.split())
+        thread = Process(target = threadedCron, args = shlex.split(msg))
 
         # On démarre le thread en tant que démon et l'ajoute au tableau
         thread.daemon = True
@@ -91,20 +112,18 @@ def execFonction(commande,stdout,stderr):
 
 # Fonction qui définie la prochaine date d'éxecution
 def next_date(mois,jourmois,joursemaine,heure,minute):
-
   next=datetime.now() # on récupère la date d'aujourd'hui
   next+=timedelta(minutes=1) # on ajoute une minute pour éviter les problèmes
   next=next.replace(second=0) # on initialise les secondes à 0
-
   cont=True
 
   while(cont):
     # Mois
     if mois.isdigit() and int(mois)!=next.month:
-      if next.month>int(mois):
-        next=next.replace(year=next.year+1) # si on a dépassé le mois, on ajoute une année
-      next=next.replace(month=int(mois),day=1,hour=0,minute=0) # on se place au début du mois
-      continue
+        if next.month>int(mois):
+            next=next.replace(year=next.year+1) # si on a dépassé le mois, on ajoute une année
+        next=next.replace(month=int(mois),day=1,hour=0,minute=0) # on se place au début du mois
+        continue
 
     # Jour du mois
     if jourmois.isdigit() and int(jourmois)!=next.day:
@@ -147,11 +166,8 @@ def next_date(mois,jourmois,joursemaine,heure,minute):
 def supprimerThread(message):
     # Supprime le thread correspondant à la ligne supprimée
     print(my_threads)
-    #LA METHODE POUR STOPPER NE MARCHE PAS J'AI TESTER
-    print(my_threads[int(message)-1].is_alive())
     my_threads[int(message)-1].terminate()
     my_threads[int(message)-1].join()
-    print(my_threads[int(message)-1].is_alive())
     #On supprime la référence du thread de la liste
     del my_threads[int(message)-1]
     print(my_threads)
