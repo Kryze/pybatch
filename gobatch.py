@@ -166,7 +166,7 @@ def next_date(mois,jourmois,joursemaine,heure,minute):
 
     except ValueError:
 
-        print "VEUILLEZ SAISIR UNE DATE REALISABLE"
+        print "La date saisie est eronnée"
         lines = file(os.path.expanduser('~/fbatch.txt'), 'r').readlines() 
         del lines[-1] 
         file(os.path.expanduser('~/fbatch.txt'), 'w').writelines(lines)
@@ -178,13 +178,16 @@ def next_date(mois,jourmois,joursemaine,heure,minute):
   return(next) # retourne la prochaine date d'éxecution
 
 def supprimerThread(message):
-    # Supprime le thread correspondant à la ligne supprimée
-    print(my_threads)
-    my_threads[int(message)-1].terminate()
-    my_threads[int(message)-1].join()
-    #On supprime la référence du thread de la liste
-    del my_threads[int(message)-1]
-    print(my_threads)
+    try:
+        # Supprime le thread correspondant à la ligne supprimée
+        print(my_threads)
+        my_threads[int(message)-1].terminate()
+        my_threads[int(message)-1].join()
+        #On supprime la référence du thread de la liste
+        del my_threads[int(message)-1]
+        print(my_threads)
+    except IndexError:
+        print "Le thread correspondant n'existe pas"
 
 def run():
     while True:
