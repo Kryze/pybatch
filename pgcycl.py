@@ -13,7 +13,6 @@ import re
 # Fonction permettant d'écrire dans le fichier fbatch
 def ecritureFichier(msg):
     # On ouvre le fichier fbatch.txt en écriture append (a)
-    #TODO: formatter le message : a-t-on besoin du cron ? (pour l'instant tout est écrit)
     with open(os.path.expanduser("~/fbatch.txt"),"a") as f:
         print "gobatch: Ecriture de la commande"
         f.write(msg+" \r\n")

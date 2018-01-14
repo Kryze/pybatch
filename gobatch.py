@@ -32,7 +32,6 @@ def lectureFichier():
             for line in f:
                 # On incrémente la variable pour chaque ligne
                 i+=1
-                #TODO: afficher le PID et vérifier qu'il tourne encore, sinon le relancer pour chaque ligne
                 # On split la ligne en prenant en compte les quotes
                 tabCmd = shlex.split(line)
                 # Si jour de la semaine ou mois sont vides on ne regarde pas les tableaux
@@ -71,7 +70,6 @@ def creationThread():
     except IOError:
         print "Le fichier fbatch est vide ou n'existe pas."
 
-#TODO:
 def threadedCron(minute,heure,jourmois,mois,joursemaine,commande,stdout,stderr):
     # On démarre le thread
     print("Démarrage du Thread pour la commande : "+commande)
@@ -213,11 +211,7 @@ def run():
         elif priorite == 3:
             # Action : écriture dans le fichier fbatch
             creationThread()
-            #TODO: On affiche les threads pour le moment, par la suite il faudra utiliser
-            # for t in my_threads:
-            # if not t.isAlive()
-            # A ce moment là il faudra le relancer sinon rien
-
+            
 if __name__ == "__main__":
     #Initialisation du sémaphore
     try:
