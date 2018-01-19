@@ -4,7 +4,7 @@
 
 <p align="center">A Python cron-like tool- to scheduele execution of commands.</p>
 
-----------
+
 
 ## What is Pybatch ? 
 
@@ -68,6 +68,8 @@ This command let you delete an execution of command by choosing the line of the 
 You can view each line with `./pgcycl -l`
 
 # Contributors 
+
+----------
 
 ## Laurene Cladt
 
