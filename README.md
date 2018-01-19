@@ -2,36 +2,82 @@
 
 <h1 align="center"> Pybatch </h1>
 
+<p align="center">A Python cron-like tool- to scheduele execution of commands.</p>
 
-## Gestion de Processus en Batch (Python)
+----------
 
-La gestion de processus en batch permet à tout utilisateur de lancer de façon cyclique à une date ou une heure précise un programme. 
+## What is Pybatch ? 
 
-**Par exemple, lancement automatique du programme PAIE tous les 26 de chaque mois à 23h30, ou lancement automatique d'un programme de sauvegarde du contenu d’un disque tous les lundis à 3h du matin.** 
- 
-La mise en œuvre d'un tel système nécessite l'écriture d'un programme démon gobatch qui explore un fichier fbatch dans lequel sont définis les programmes ou commandes à exécuter cycliquement. 
- 
-L'utilisateur qui veut lancer un programme cyclique ou le supprimer doit lancer la commande pgcycl en précisant au besoin des paramètres comme : 
- 
+----------
+
+Pybatch is a program who let you scheduele execution of a command when you want.
+
+It's a school project for a Course of M1 MIAGE
+
+## Installation  
+
+----------
+
+This project only works for UNIX system because of the use of semaphore and for the meaning of the course.
+
+First, you need to install `posix_ipc` by running :
+
+`pip install posix_ipc`
+
+Download both python script (gobatch.py & pybatch.py) and put them in a directory of your choice.
+
+You need to run gobatch.py by running `./gobatch` which is the server of your commands.
+
+You will then enter commands with `pybatch.py`
+
+## How works Pybatch ? 
+
+----------
+
+Each time you want to enter a command, a file named `fbatch.txt`
+
+There is 3 parameters available :
+
+`./pgcycl -a minute hour monthday month weekday command output error`
+
+You can choose the interval of execution of your commands by choosing which parameters you want to fill.
+Here is the interval of each value :
+
 - minute 0-59   
-- heure 0-23
-- jour du mois 1-31
-- mois 1-12
-- jour de la semaine 0-6   
+- hour 0-23
+- monthday 1-31
+- month 1-12
+- weekday 0-6 
+- output (The file of the standard output)
+- error (The file of the error output)
 
-commande à exécuter en précisant le nom du fichier de sortie et le nom du fichier des erreurs 
- 
-pgcycl modifie en conséquence le fichier fbatch. 
- 
-La sortie standard (stdout) et la sortie des erreurs (stderr) des commandes soumises à gobatch sont redirigées vers les fichiers précisés dans le champ 6. 
- 
-Le démon gobatch, lancé en arrière-plan, est averti à chaque modification du fichier par pgcycl. Par souci de simplification, gobatch ne travaille que pour le compte d'un utilisateur et est lancé une fois pour toutes. 
- 
-syntaxe de pgcycl : 
- 
-pgcycl 
-- <-l> fbatch pour lister le contenu de fbatch 
-- <-d> fbatch pour détruire une ligne de  fbatch 
-- <-a> fbatch pour ajouter une ligne à  fbatch 
- 
-Prévoyez une démonstration "parlante".
+You can also put `"*"` to replace an empty time/date field or just let the rest of the time/date field empty.
+
+You must choose a command and an output/error parameter.
+
+A command can take space by putting `"''"` between the parameter.
+
+`./pgcycl -l`
+
+This command let you list the differents commands you are running in a cycle.
+
+`./pgcycl -d x`
+
+This command let you delete an execution of command by choosing the line of the command you want to delete.
+
+You can view each line with `./pgcycl -l`
+
+# Contributors 
+
+## Laurene Cladt
+
+<p><a href="https://github.com/claurene" target="_blank"><img width="80"src="https://avatars2.githubusercontent.com/u/22750010?s=460&v=4"></a></p>
+
+## Rodolphe Aubry
+
+<p><a href="https://github.com/rodobry" target="_blank"><img width="80"src="https://avatars1.githubusercontent.com/u/22979894?s=460&v=4"></a></p>
+
+## Benjamin "Kryze"
+
+<p><a href="https://github.com/Kryze" target="_blank"><img width="80"src="https://avatars3.githubusercontent.com/u/18222418?s=460&v=4"></a></p>
+
