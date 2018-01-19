@@ -36,7 +36,7 @@ You will then enter commands with `pybatch.py`
 
 Each time you want to enter a command, a file named `fbatch.txt`
 
-There is 3 parameters available :
+There are 3 parameters available :
 
 `./pgcycl -a minute hour monthday month weekday command output error`
 
