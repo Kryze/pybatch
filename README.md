@@ -12,13 +12,13 @@
 
 Pybatch is a program who let you schedule execution of a command when you want.
 
-It's a school project for a Course of M1 MIAGE
+It's a school project for a M1 MIAGE course.
 
 ## Installation  
 
 ----------
 
-This project only works for UNIX system because of the use of semaphore and for the meaning of the course.
+This project only works for UNIX systems because of the use of semaphore and for the meaning of the course.
 
 First, you need to install `posix_ipc` by running :
 
