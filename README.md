@@ -2,7 +2,7 @@
 
 <h1 align="center"> Pybatch </h1>
 
-<p align="center">A Python cron-like tool to scheduele execution of commands.</p>
+<p align="center">A Python cron-like tool to schedule execution of commands.</p>
 
 
 
