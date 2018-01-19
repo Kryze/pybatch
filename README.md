@@ -10,7 +10,7 @@
 
 ----------
 
-Pybatch is a program who let you scheduele execution of a command when you want.
+Pybatch is a program who let you schedule execution of a command when you want.
 
 It's a school project for a Course of M1 MIAGE
 
