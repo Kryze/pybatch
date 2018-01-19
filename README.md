@@ -1,6 +1,6 @@
-# pybatch
+<p align="center"><img width="150"src="https://user-images.githubusercontent.com/18222418/34547852-62892c5a-f0fe-11e7-8f31-ce815664d201.png"></a></p>
 
-![pybatch](https://user-images.githubusercontent.com/18222418/34547852-62892c5a-f0fe-11e7-8f31-ce815664d201.png)
+<h1 align="center"> Pybatch </h1>
 
 
 ## Gestion de Processus en Batch (Python)
